@@ -3,10 +3,26 @@ import random
 from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render
 
+from .forms import TweetForm
 from .models import Tweet
 
 def home_view(request, *args, **kwargs):
     return render(request, "pages/home.html", context={}, status=200)
+
+
+def tweet_create_view(request, *args, **kwargs):
+    form = TweetForm(request.POST or None)
+    # request.POST is a dict containing the info coming through the form. content of a tweet can be accessed via 
+    # requst.POST.get('content')
+    if form.is_valid():
+        # save method creates a model object, but the commit argument being false force it not to save it to the db.
+        obj = form.save(commit=False)
+        # do other form related logic, now 'obj' is a Tweet model instance not been saved.
+        obj.save()
+        form = TweetForm()
+    return render(request, "components/form.html", context={"form" : form})
+        
+        
 
 def tweet_list_view(request, *args, **kwargs):
     """
