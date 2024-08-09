@@ -1,10 +1,15 @@
 import random
 
+from django.conf import settings
 from django.http import HttpResponse, Http404, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.utils.http import url_has_allowed_host_and_scheme
+
 
 from .forms import TweetForm
 from .models import Tweet
+
+ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
 def home_view(request, *args, **kwargs):
     return render(request, "pages/home.html", context={}, status=200)
@@ -14,11 +19,15 @@ def tweet_create_view(request, *args, **kwargs):
     form = TweetForm(request.POST or None)
     # request.POST is a dict containing the info coming through the form. content of a tweet can be accessed via 
     # requst.POST.get('content')
+    next_url = request.POST.get("next") or None
+    print("next_url = ", next_url)
     if form.is_valid():
         # save method creates a model object, but the commit argument being false force it not to save it to the db.
         obj = form.save(commit=False)
         # do other form related logic, now 'obj' is a Tweet model instance not been saved.
         obj.save()
+        if next_url != None and url_has_allowed_host_and_scheme(next_url, ALLOWED_HOSTS):
+            return redirect(next_url)
         form = TweetForm()
     return render(request, "components/form.html", context={"form" : form})
         
