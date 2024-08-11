@@ -20,8 +20,6 @@ def home_view(request, *args, **kwargs):
 
 
 def tweet_create_view(request, *args, **kwargs):
-    print("request.headers = ", request.META.get('HTTP_X_REQUESTED_WITH'))
-    print("ajax?", is_ajax(request))
     form = TweetForm(request.POST or None)
     # request.POST is a dict containing the info coming through the form. Content of a tweet can be accessed via 
     # requst.POST.get('content')
@@ -33,11 +31,14 @@ def tweet_create_view(request, *args, **kwargs):
         # do other form related logic, now 'obj' is a Tweet model instance not been saved.
         obj.save()
         if is_ajax(request):
-            return JsonResponse({}, status=201) # 201 status is typically for created items 
+            return JsonResponse(obj.serialize(), status=201) # 201 status is typically for created items 
 
         if next_url != None and url_has_allowed_host_and_scheme(next_url, ALLOWED_HOSTS):
             return redirect(next_url)
         form = TweetForm()
+    if form.errors:
+        if is_ajax(request):
+            return JsonResponse(form.errors, status=400)
     return render(request, "components/form.html", context={"form" : form})
         
         
@@ -49,7 +50,7 @@ def tweet_list_view(request, *args, **kwargs):
     Return json data
     """
     qs = Tweet.objects.all()
-    tweets_list = [{"id": x.id, "content": x.content, "likes": random.randint(0, 12312)} for x in qs]
+    tweets_list = [x.serialize() for x in qs]
     data = {
         "isUser": False,
         "response": tweets_list
