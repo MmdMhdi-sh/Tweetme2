@@ -16,10 +16,18 @@ def is_ajax(request):
 
 
 def home_view(request, *args, **kwargs):
+    print(request.user)
     return render(request, "pages/home.html", context={}, status=200)
 
 
 def tweet_create_view(request, *args, **kwargs):
+    user = request.user
+    if not request.user.is_authenticated:
+        user = None
+        if is_ajax(request):
+            # status 401 is for not authorized
+            return JsonResponse({}, status=401)
+        return redirect(settings.LOGIN_URL)
     form = TweetForm(request.POST or None)
     # request.POST is a dict containing the info coming through the form. Content of a tweet can be accessed via 
     # requst.POST.get('content')
@@ -28,7 +36,9 @@ def tweet_create_view(request, *args, **kwargs):
     if form.is_valid():
         # save method creates a model object, but the commit argument being false force it not to save it to the db.
         obj = form.save(commit=False)
-        # do other form related logic, now 'obj' is a Tweet model instance not been saved.
+        # do other form related logic, now 'obj' is a Tweet model instance not been saved. For example, adding the 
+        # authenticated user to the obj.
+        obj.user = user
         obj.save()
         if is_ajax(request):
             return JsonResponse(obj.serialize(), status=201) # 201 status is typically for created items 
