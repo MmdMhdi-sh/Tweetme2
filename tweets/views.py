@@ -11,13 +11,19 @@ from .models import Tweet
 
 ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
+def is_ajax(request):
+    return (request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest') or (request.META.get('X-Requested-With') == 'XMLHttpRequest')
+
+
 def home_view(request, *args, **kwargs):
     return render(request, "pages/home.html", context={}, status=200)
 
 
 def tweet_create_view(request, *args, **kwargs):
+    print("request.headers = ", request.META.get('HTTP_X_REQUESTED_WITH'))
+    print("ajax?", is_ajax(request))
     form = TweetForm(request.POST or None)
-    # request.POST is a dict containing the info coming through the form. content of a tweet can be accessed via 
+    # request.POST is a dict containing the info coming through the form. Content of a tweet can be accessed via 
     # requst.POST.get('content')
     next_url = request.POST.get("next") or None
     print("next_url = ", next_url)
@@ -26,6 +32,9 @@ def tweet_create_view(request, *args, **kwargs):
         obj = form.save(commit=False)
         # do other form related logic, now 'obj' is a Tweet model instance not been saved.
         obj.save()
+        if is_ajax(request):
+            return JsonResponse({}, status=201) # 201 status is typically for created items 
+
         if next_url != None and url_has_allowed_host_and_scheme(next_url, ALLOWED_HOSTS):
             return redirect(next_url)
         form = TweetForm()
