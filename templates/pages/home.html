@@ -111,7 +111,8 @@ function loadTweets(tweetsElement) {
     xhr.open(method, url)
     xhr.onload = function() {
         const serverResponse = xhr.response
-        const listedItems = serverResponse.response
+        // serverResponse.response to serverResponse only because of using DRF Response
+        const listedItems = serverResponse
         var finalTweetsStr = "";
         var i;
         for (i=0;i<listedItems.length;i++) {
