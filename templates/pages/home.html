@@ -148,7 +148,7 @@ loadTweets(tweetsContainerElement)
 
 function handleTweetActionBtn(tweet_id, currentCount, action) {
     console.log(tweet_id, currentCount)
-    const url = "/api/tweets/action"
+    const url = "/api/tweets/action/"
     const method = "POST"
     data = JSON.stringify({
         id: tweet_id,
@@ -169,7 +169,7 @@ function handleTweetActionBtn(tweet_id, currentCount, action) {
 
 function RetweetBtn(tweet) { 
     return "<button class='btn btn-outline-success btn-sm' onclick=handleTweetActionBtn(" + 
-    tweet.id + "," + tweet.likes + ",'unlike')>Retweet</button>"
+    tweet.id + "," + tweet.likes + ",'retweet')>Retweet</button>"
 }
 
 function LikeBtn(tweet) { 

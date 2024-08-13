@@ -4,6 +4,8 @@
             -> Text
             -> Image
         -> Retweet
+            -> Read only serializer
+            -> Create only serializer
         -> Delete
         -> Likes or Unlike
 
