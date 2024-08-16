@@ -15,14 +15,18 @@ if (appEl) {
     </React.StrictMode>
   );
 }
+
+// .dataset gives you the properties of the element starting with 'data-'. Ex. data-username='username' => {username:"username"}
 const tweetsEl = document.getElementById('tweetme-2')
+const e = React.createElement
 if (tweetsEl) {
   const root = ReactDOM.createRoot(tweetsEl);
-  root.render(
-    <React.StrictMode>
-      <TweetsComponent />
-    </React.StrictMode>
-  );
+  root.render(e(TweetsComponent, tweetsEl.dataset));
+  // root.render(
+  //   <React.StrictMode>
+  //     <TweetsComponent username={tweetsEl.dataset.username}/> 
+  //   </React.StrictMode>
+  // );
 }
 
 // If you want to start measuring performance in your app, pass a function
