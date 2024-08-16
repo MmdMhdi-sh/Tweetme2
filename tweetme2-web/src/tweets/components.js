@@ -1,20 +1,30 @@
 import React, {useEffect, useState} from "react";
-import { loadTweets } from "../lookup";
+import { 
+    apiTweetAction,
+    apiTweetCreate,  
+    apiTweetList 
+} from "./lookup";
 
   
 export function TweetsComponent(props) {
     const textAreaRef = React.createRef()
     const [newTweets, setNewTweets] = useState([])
+    // backend api response handler
+    const handleBackendUpdate = (response, status) => {
+        let tempNewTweets = [...newTweets]
+        if (status === 201) {
+            tempNewTweets.unshift(response)
+            setNewTweets(tempNewTweets)
+        } else {
+            console.log(response)
+            alert("An error occured. Please try again.")
+        }
+    }
+    // backend api request handler
     const handleSubmit = (event) => {
         event.preventDefault()
         const newVal = textAreaRef.current.value
-        let tempNewTweets = [...newTweets]
-        tempNewTweets.unshift({
-            content: newVal,
-            likes:0,
-            id:12314
-        })
-        setNewTweets(tempNewTweets)
+        apiTweetCreate(newVal, handleBackendUpdate)
         textAreaRef.current.value = ''
     }
     return <div className={props.className}>
@@ -41,7 +51,7 @@ export function TweetsList(props) {
     }, [props.newTweets, tweets, tweetsInit])
     useEffect(() => {
         if (tweetsDidSet === false) {
-            const myCallBack = (response, status) => {
+            const handleTweetListLookup = (response, status) => {
                 if (status === 200){
                     setTweetsInit(response)
                     setTweetsDidSet(true)
@@ -49,7 +59,7 @@ export function TweetsList(props) {
                     alert("There was an error!")
                 }
             }
-            loadTweets(myCallBack)
+            apiTweetList(handleTweetListLookup)
         }
     }, [tweetsInit, tweetsDidSet, setTweetsDidSet])
     return tweets.map((item, index)=>{
@@ -64,8 +74,8 @@ export function ActionBtn(props) {
     const [userLike, setUserLike] = useState(tweet.userLike === true ? true : false)
     const className = props.className ? props.className : 'btn btn-primary btn-sm'
     const actionDisplay = action.display ? action.display : 'Action'
-    const handleClick = (event) => {
-        event.preventDefault()
+    const handleActionBackendEvent = (response, status) => {
+        console.log(status, response)
         if (action.type === 'like') {
             if (userLike === true) {
                 setLikes(likes-1)
@@ -75,6 +85,10 @@ export function ActionBtn(props) {
                 setUserLike(true)
             }
         }
+    }
+    const handleClick = (event) => {
+        event.preventDefault()
+        apiTweetAction(tweet.id, action.type, handleActionBackendEvent)
     }
     const display = action.type === 'like' ? `${likes} ${actionDisplay}` : actionDisplay
     return <button className={className} onClick={handleClick}>{display}</button>
