@@ -45,7 +45,7 @@ def tweet_detail_view(request, tweet_id, *args, **kwargs):
     obj = qs.first()
     serializer = TweetSerializer(obj)
     
-    return Response(serializer.data)
+    return Response(serializer.data, status=200)
 
 
 @api_view(['DELETE', 'POST'])
@@ -99,7 +99,11 @@ def tweet_action_view(request, *args, **kwargs):
 
 @api_view(['GET'])
 def tweet_list_view(request, *args, **kwargs):
+    username = request.GET.get("username")
+    print("username = ", username)
     qs = Tweet.objects.all()
+    if username != None:
+        qs = qs.filter(user__username=username)
     serializer = TweetSerializer(qs, many=True)
     
     return Response(serializer.data)

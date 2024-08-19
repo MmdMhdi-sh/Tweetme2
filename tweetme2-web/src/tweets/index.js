@@ -1,4 +1,8 @@
-import { ActionBtn, Tweet, TweetsList, TweetsComponent } from "./components";
+import { ActionBtn } from "./buttons";
+import { TweetDetailComponent, TweetsComponent } from "./components";
+import { TweetCreate } from "./create";
+import { Tweet } from "./detail";
+import { TweetsList } from "./list";
 
 
 
@@ -6,6 +10,8 @@ import { ActionBtn, Tweet, TweetsList, TweetsComponent } from "./components";
 export {
     ActionBtn, 
     Tweet,
-    TweetsList, 
-    TweetsComponent
+    TweetDetailComponent,
+    TweetsComponent,
+    TweetCreate,
+    TweetsList,
 }
